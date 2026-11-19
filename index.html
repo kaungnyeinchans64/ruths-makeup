@@ -86,8 +86,7 @@ const txt=o=>o?.[S.lang]||o?.en||"";
 const money=n=>"฿"+Number(n||0).toLocaleString();
 function go(p){S.page=p;S.msg="";location.hash=p;render();scrollTo(0,0)}
 addEventListener("hashchange",()=>{const p=location.hash.slice(1);if(p&&p!==S.page){S.page=p;render()}});
-function rr(){/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName)?dirty=true:render()}
-addEventListener("focusout",()=>{if(dirty){dirty=false;setTimeout(render,50)}});
+function rr(){if(/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||""))return;render()}
 const mandala='<svg viewBox="0 0 200 200" fill="none" stroke="#7a4a2a" stroke-width="1.5"><circle cx="100" cy="100" r="95"/><circle cx="100" cy="100" r="70"/><circle cx="100" cy="100" r="40"/>'+Array.from({length:12},(_,i)=>`<ellipse cx="100" cy="42" rx="12" ry="30" transform="rotate(${i*30} 100 100)"/>`).join("")+"</svg>";
 function render(){
  document.documentElement.lang=S.lang;
@@ -212,8 +211,8 @@ async function load(){subs=[];S.canEdit=false;S.mine=[];
  if(S.canEdit){db.collection("bookings").onSnapshot(q=>{S.bk=flat(q).sort((a,b)=>b.at-a.at);rr()},er);
   db.collection("regs").onSnapshot(q=>{S.rg=flat(q);rr()},er);db.collection("pend").onSnapshot(q=>{S.pend=flat(q);rr()},er)}
  render()}
-async function doLogin(){const{error}=await SB.auth.signInWithPassword({email:v("le"),password:v("lp")});S.msg=error?error.message:"";error?render():go("services")}
-async function doReg(){const{error}=await SB.auth.signUp({email:v("re"),password:v("rp"),options:{data:{name:v("rn2")}}});S.msg=error?error.message:t("regok");render()}
+async function doLogin(){if(!SB)return ok("Supabase connection is not ready. Refresh the page.");try{const{error}=await SB.auth.signInWithPassword({email:v("le"),password:v("lp")});S.msg=error?error.message:"";error?render():go("services")}catch(e){ok("Login error: "+e.message)}}
+async function doReg(){if(!SB)return ok("Supabase connection is not ready. Refresh the page.");try{const{error}=await SB.auth.signUp({email:v("re"),password:v("rp"),options:{data:{name:v("rn2")}}});S.msg=error?error.message:t("regok");render()}catch(e){ok("Registration error: "+e.message)}}
 async function logout(){await SB.auth.signOut();go("home")}
 (()=>{const p=location.hash.slice(1);if(p)S.page=p;S.ready=true;render();
  if(!window.supabase||SUPABASE_URL.startsWith("PASTE")){S.msg="Setup needed: see SETUP-GUIDE.md";return}
