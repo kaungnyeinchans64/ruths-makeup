@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ruth’s Makeup — Rupar Htun</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@400;500&family=Noto+Sans+Thai:wght@400;600&family=Noto+Sans+Myanmar:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--bg:#fff4f1;--ink:#4a2b30;--card:#fff;--rose:#b76e79;--rose2:#e8b4b8;--gold:#c9a24b;--line:#f0d5d3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a1a1e;--ink:#f8e6e3;--card:#3a2429;--line:#5a3a40}}
+:root[data-theme="dark"]{--bg:#2a1a1e;--ink:#f8e6e3;--card:#3a2429;--line:#5a3a40}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Poppins,"Noto Sans Thai","Noto Sans Myanmar","Noto Sans Devanagari",system-ui,sans-serif}
+h1,h2,h3{font-family:"Playfair Display",Georgia,"Noto Sans Thai","Noto Sans Myanmar","Noto Sans Devanagari",serif;margin:.2em 0}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:2px solid var(--gold);display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;padding:.6rem 1rem}
+.logo{font:700 1.3rem "Playfair Display",serif;color:var(--rose);cursor:pointer}
+nav{display:flex;flex-wrap:wrap;gap:.2rem;flex:1}
+nav a,.lang button{padding:.3rem .7rem;border-radius:99px;cursor:pointer;color:var(--ink);font-size:.9rem;border:0;background:none}
+nav a.on,.lang button.on{background:linear-gradient(135deg,#d99a9f,#b76e79);color:#fff}
+main{max-width:1000px;margin:auto;padding:1rem}
+.hero{text-align:center;padding:3rem 1rem;border-radius:24px;background:linear-gradient(135deg,#f9d9d6,#e8b4b8 55%,#d9b27c);color:#4a2b30;position:relative;overflow:hidden}
+.hero svg{position:absolute;right:-60px;top:-60px;width:260px;opacity:.25}
+.hero h1{font-size:clamp(2rem,6vw,3.4rem)}
+.btn{display:inline-block;padding:.65rem 1.4rem;border-radius:99px;border:0;background:linear-gradient(135deg,#d99a9f,#b76e79,#c9a24b);color:#fff;font:500 1rem inherit;font-family:inherit;cursor:pointer;margin:.3rem}
+.btn.s{padding:.3rem .8rem;font-size:.85rem}.btn:disabled{opacity:.4;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1rem 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:1.2rem}
+.price{font:700 1.7rem "Playfair Display",serif;color:var(--rose)}
+.div{text-align:center;color:var(--gold);letter-spacing:.5em;margin:1.5rem 0}
+input,select,textarea{width:100%;padding:.6rem;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;margin:.25rem 0 .6rem}
+.times{display:flex;flex-wrap:wrap;gap:.4rem}.times button{padding:.4rem .9rem;border-radius:10px;border:1px solid var(--rose);background:none;color:var(--ink);cursor:pointer}
+.times button.on{background:var(--rose);color:#fff}.times button:disabled{opacity:.35;text-decoration:line-through}
+.gal{columns:3 200px;gap:1rem}.gal figure{margin:0 0 1rem;break-inside:avoid;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.gal img{width:100%;display:block}.gal figcaption{padding:.6rem;font-size:.9rem}
+.ph{height:150px;background:linear-gradient(135deg,#f9d9d6,#d9b27c)}
+.stars{color:var(--gold);font-size:1.2rem;cursor:pointer}
+.note{font-size:.85rem;opacity:.75}.ok{color:#2e8b57}
+footer{text-align:center;padding:2rem 1rem;border-top:2px solid var(--gold);margin-top:2rem}
+footer a{margin:0 .4rem;color:var(--rose)}
+.pre{white-space:pre-wrap}
+.bar{height:8px;background:var(--line);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--rose)}
+.rg{fill:#f3c9cc;stroke:#b76e79;stroke-width:1.5;cursor:pointer}.rg.on{fill:#b76e79}.lb{font:10px sans-serif;fill:#4a2b30;pointer-events:none}.tsel{display:flex;gap:.5rem}#map{height:320px;border-radius:14px;margin:.5rem 0}</style></head><body>
+<header><div class="logo" onclick="go('home')">🪷 Ruth’s Makeup</div><nav id="nav"></nav><div class="lang" id="lang"></div></header>
+<main id="app"></main>
+<footer id="foot"></footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL="https://ykoiaqcqkczjlkaigruv.supabase.co",SUPABASE_KEY="sb_publishable_JL4L03Px8K_hnvCURAbNsw_3ZQHWVcE";
+const LANGS=["en","th","my","hi"],LN={en:"EN",th:"ไทย",my:"မြန်",hi:"हिं"};
+const T={
+home:["Home","หน้าแรก","ပင်မ","होम"],classes:["Classes","คลาสเรียน","သင်တန်း","क्लास"],services:["Book Makeup","จองแต่งหน้า","ချယ်သမှုကြိုတင်မှာ","बुक करें"],gallery:["Gallery","แกลเลอรี","ဓာတ်ပုံပြခန်း","गैलरी"],reviews:["Reviews","รีวิว","သုံးသပ်ချက်","समीक्षा"],rules:["Rules","กฎระเบียบ","စည်းကမ်း","नियम"],shop:["Shop","ร้านค้า","ဆိုင်","शॉप"],contact:["Contact","ติดต่อ","ဆက်သွယ်ရန်","संपर्क"],admin:["Admin","แอดมิน","အက်ဒမင်","एडमिन"],
+tag:["Indian · Arabic · All Looks · Classes","อินเดีย · อาหรับ · ทุกลุค · คลาสเรียน","အိန္ဒိယ · အာရပ် · ပုံစံအားလုံး · သင်တန်း","भारतीय · अरबी · सभी लुक · क्लास"],
+private:["Private Class (Onsite)","คลาสส่วนตัว (นอกสถานที่)","ကိုယ်ပိုင်သင်တန်း","निजी क्लास (ऑनसाइट)"],group:["Group Class (Promotion)","คลาสกลุ่ม (โปรโมชัน)","အုပ်စုလိုက်သင်တန်း","ग्रुप क्लास (प्रमोशन)"],online:["Online Class","คลาสออนไลน์","အွန်လိုင်းသင်တန်း","ऑनलाइन क्लास"],
+pp:["per person","ต่อคน","တစ်ဦးလျှင်","प्रति व्यक्ति"],people:["People (1-5)","จำนวนคน (1-5)","လူဦးရေ (၁-၅)","लोग (1-5)"],section:["Section","รอบ","အုပ်စု","सेक्शन"],seats:["seats filled","ที่นั่งเต็ม","နေရာပြည့်","सीटें भरी"],closed:["Closed","ปิดรับ","ပိတ်ထား","बंद"],
+name:["Your name","ชื่อ","အမည်","नाम"],phone:["Phone / Line","โทร / ไลน์","ဖုန်း","फ़ोन"],date:["Date","วันที่","ရက်စွဲ","तारीख"],time:["Time","เวลา","အချိန်","समय"],send:["Send request","ส่งคำขอ","တောင်းဆိုမည်","अनुरोध भेजें"],
+svc:["Occasion","งาน","အခမ်းအနား","अवसर"],style:["Style","สไตล์","ပုံစံ","स्टाइल"],loc:["Location","สถานที่","နေရာ","स्थान"],total:["Estimated price","ราคาประมาณ","ခန့်မှန်းစျေး","अनुमानित मूल्य"],
+bridal:["Bridal / Wedding","แต่งงาน","မင်္ဂလာ","शादी"],grad:["Graduation","รับปริญญา","ဘွဲ့ယူ","ग्रेजुएशन"],shoot:["Photo shoot","ถ่ายภาพ","ဓာတ်ပုံရိုက်","फोटोशूट"],other:["Other","อื่นๆ","အခြား","अन्य"],
+indian:["Indian","อินเดีย","အိန္ဒိယ","भारतीय"],arabic:["Arabic","อาหรับ","အာရပ်","अरबी"],natural:["Classic / Other","คลาสสิก/อื่นๆ","ပုံမှန်","क्लासिक"],
+z0:["Come to her (Victory Monument)","มาที่ร้าน (อนุสาวรีย์ชัย)","ဆိုင်သို့လာ","स्टूडियो आएँ"],z1:["Central Bangkok","กรุงเทพชั้นใน","ဘန်ကောက်အလယ်","मध्य बैंकॉक"],z2:["Greater Bangkok","ปริมณฑล","ဘန်ကောက်ပတ်ဝန်းကျင်","ग्रेटर बैंकॉक"],z3:["Central & East","ภาคกลางและตะวันออก","အလယ်ပိုင်းနှင့်အရှေ့","मध्य और पूर्व"],z4:["North","ภาคเหนือ","မြောက်ပိုင်း","उत्तर"],z5:["Northeast","ภาคอีสาน","အရှေ့မြောက်ပိုင်း","पूर्वोत्तर"],z6:["South","ภาคใต้","တောင်ပိုင်း","दक्षिण"],
+bridalc:["Classic bridal","เจ้าสาวคลาสสิก","ရိုးရာမင်္ဂလာ","क्लासिक ब्राइडल"],glam:["Party / Glam","ปาร์ตี้ / แกลม","ပါတီ / ဂလမ်","पार्टी / ग्लैम"],soft:["Soft / Natural","ซอฟต์ / ธรรมชาติ","နူးညံ့ / သဘာဝ","सॉफ्ट / नैचुरल"],korean:["Korean look","ลุคเกาหลี","ကိုရီးယားပုံစံ","कोरियन लुक"],editorial:["Editorial","เอดิทอเรียล","အယ်ဒီတိုရီရယ်","एडिटोरियल"],
+spec:["Signature looks: Indian & Arabic — plus bridal, party, soft glam, Korean, editorial and more.","ลุคเด่น: อินเดียและอาหรับ — พร้อมเจ้าสาว ปาร์ตี้ ซอฟต์แกลม เกาหลี เอดิทอเรียล และอื่นๆ","အထူးပုံစံ: အိန္ဒိယနှင့် အာရပ် — မင်္ဂလာ၊ ပါတီ၊ ကိုရီးယား စသည်တို့လည်းရသည်။","खास लुक: भारतीय और अरबी — साथ ही ब्राइडल, पार्टी, सॉफ्ट ग्लैम, कोरियन, एडिटोरियल और भी।"],
+notes:["Notes / reference photo link","หมายเหตุ / ลิงก์รูปตัวอย่าง","မှတ်ချက် / ဓာတ်ပုံလင့်ခ်","नोट्स / रेफ़रेंस फोटो लिंक"],country:["Country","ประเทศ","နိုင်ငံ","देश"],soonc:["More countries coming soon","จะรองรับประเทศอื่นเร็วๆ นี้","အခြားနိုင်ငံများ မကြာမီ","अन्य देश जल्द आ रहे हैं"],
+pick:["Tap your area on the map (Thailand)","แตะพื้นที่ของคุณบนแผนที่ (ประเทศไทย)","မြေပုံပေါ်တွင် ရွေးပါ (ထိုင်း)","मैप पर अपना क्षेत्र चुनें (थाईलैंड)"],busy:["Unavailable on this date","ไม่ว่างในวันนี้","ဤနေ့တွင် မအား","इस तारीख पर अनुपलब्ध"],conflict:["This time is already booked. Please choose another.","เวลานี้ถูกจองแล้ว กรุณาเลือกเวลาอื่น","ဤအချိန် ကြိုတင်ယူပြီး အခြားအချိန်ရွေးပါ","यह समय बुक है। कृपया दूसरा चुनें।"],
+taken:["Booked","เต็ม","ပြည့်","भरा"],sent:["Request sent! We will confirm soon.","ส่งแล้ว! เราจะยืนยันเร็วๆ นี้","ပို့ပြီး! မကြာမီအတည်ပြုမည်","भेज दिया! जल्द पुष्टि होगी।"],
+login:["Please sign in to your account to book or review.","กรุณาเข้าสู่ระบบเพื่อจองหรือรีวิว","ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ","बुक या समीक्षा के लिए साइन इन करें।"],
+rate:["Your rating","คะแนน","အဆင့်","रेटिंग"],write:["Write your review (max 1000 words)","เขียนรีวิว (สูงสุด 1000 คำ)","သုံးသပ်ချက် (စာလုံး ၁၀၀၀ အထိ)","समीक्षा लिखें (अधिकतम 1000 शब्द)"],photo:["Add photo","เพิ่มรูป","ဓာတ်ပုံထည့်","फोटो जोड़ें"],revsent:["Thank you! Your review will appear after approval.","ขอบคุณ! รีวิวจะแสดงหลังอนุมัติ","ကျေးဇူးတင်ပါသည်! အတည်ပြုပြီးပြသမည်","धन्यवाद! अनुमोदन के बाद दिखेगा।"],
+soon:["Her own makeup products — coming soon 💄","ผลิตภัณฑ์แบรนด์ของเธอ — เร็วๆ นี้","သူ့ကိုယ်ပိုင်ထုတ်ကုန်များ — မကြာမီ","उनके अपने प्रोडक्ट्स — जल्द आ रहे हैं"],
+follow:["Follow us","ติดตามเรา","ဖော်လိုလုပ်ပါ","फ़ॉलो करें"],map:["Open map","เปิดแผนที่","မြေပုံဖွင့်","मैप खोलें"]};
+Object.assign(T,{
+z1:["Central Bangkok (up to 15 km)","กรุงเทพชั้นใน (ไม่เกิน 15 กม.)","ဘန်ကောက်အလယ် (၁၅ ကီလိုမီတာအထိ)","मध्य बैंकॉक (15 किमी तक)"],z2:["Greater Bangkok (up to 50 km)","ปริมณฑล (ไม่เกิน 50 กม.)","ဘန်ကောက်ပတ်ဝန်းကျင် (၅၀ ကီလိုမီတာအထိ)","ग्रेटर बैंकॉक (50 किमी तक)"],z3:["Nearby provinces (up to 200 km)","จังหวัดใกล้เคียง (ไม่เกิน 200 กม.)","နီးစပ်ပြည်နယ် (၂၀၀ ကီလိုမီတာအထိ)","आस-पास के प्रांत (200 किमी तक)"],z4:["Far (up to 500 km)","ไกล (ไม่เกิน 500 กม.)","ဝေးသည် (၅၀၀ ကီလိုမီတာအထိ)","दूर (500 किमी तक)"],z5:["Very far (over 500 km)","ไกลมาก (เกิน 500 กม.)","အလွန်ဝေး (၅၀၀ ကီလိုမီတာကျော်)","बहुत दूर (500 किमी से अधिक)"],
+account:["Account","บัญชี","အကောင့်","खाता"],loginb:["Log in","เข้าสู่ระบบ","ဝင်မည်","लॉग इन"],register:["Register","สมัครสมาชิก","စာရင်းသွင်း","रजिस्टर"],logout:["Log out","ออกจากระบบ","ထွက်မည်","लॉग आउट"],email:["Email","อีเมล","အီးမေးလ်","ईमेल"],password:["Password","รหัสผ่าน","စကားဝှက်","पासवर्ड"],mybk:["My bookings","การจองของฉัน","ကျွန်ုပ်၏ကြိုတင်မှာမှု","मेरी बुकिंग"],
+regok:["Account created! Check your email to confirm, then log in.","สร้างบัญชีแล้ว! ตรวจสอบอีเมลเพื่อยืนยัน แล้วเข้าสู่ระบบ","အကောင့်ဖွင့်ပြီး! အီးမေးလ်စစ်ပြီး ဝင်ပါ","खाता बन गया! ईमेल में पुष्टि करें, फिर लॉग इन करें।"],
+trav:["She travels to me (pick on map)","ให้ช่างไปหาฉัน (เลือกบนแผนที่)","ကျွန်ုပ်ထံလာပေးပါ (မြေပုံ)","वे मेरे पास आएँ (मैप पर चुनें)"],thonly:["Thailand only for now — please pin a location inside Thailand.","ตอนนี้รองรับเฉพาะประเทศไทย","လောလောဆယ် ထိုင်းတွင်သာ","अभी केवल थाईलैंड"],pin:["Tap the map to pin your location","แตะแผนที่เพื่อปักหมุด","မြေပုံကိုနှိပ်၍ နေရာမှတ်ပါ","मैप पर लोकेशन चुनें"]});
+const t=k=>(T[k]||[k])[LANGS.indexOf(S.lang)]||T[k][0];
+const DEF={phone:"+66 00 000 0000",email:"hello@ruthsmakeup.com",addr:"Near Victory Monument, Bangkok, Thailand",fb:"",ig:"",tt:"",yt:"",line:"",
+pr:{private:3000,group:1500,online:2500},open:{private:1,group:1,online:1},
+svc:{bridal:8000,grad:2500,shoot:3000,other:2000},zone:{z0:0,z1:500,z2:1000,z3:2000,z4:4000,z5:6000},dur:180,adm:"",
+about:{en:"Hi, I’m Rupar Htun, the makeup artist behind Ruth’s Makeup in Bangkok. Indian and Arabic looks are my signature, and I also create bridal, party, soft glam, Korean, graduation and photoshoot looks. I teach private, group and online classes. (Admin: replace this text with your story.)"},
+rules:{en:"1. Bookings are confirmed only after admin approval.\n2. Please arrive on time; late arrival may shorten your session.\n3. Cancel at least 48 hours in advance.\n4. Deposits may be non-refundable.\n5. Please tell us about any skin allergies before your session.\n(Admin: edit these rules.)"},
+gal:[]};
+let S={lang:"en",page:"home",cfg:DEF,slots:new Set(),seats:0,revs:[],bk:[],rg:[],pend:[],admin:false,dec:{},ready:false,msg:"",stars:5,sel:{}},db,usr,dirty=false;
+try{S.lang=localStorage.getItem("l")||"en"}catch(e){}
+const $=s=>document.querySelector(s),h=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const txt=o=>o?.[S.lang]||o?.en||"";
+const money=n=>"฿"+Number(n||0).toLocaleString();
+function go(p){S.page=p;S.msg="";location.hash=p;render();scrollTo(0,0)}
+addEventListener("hashchange",()=>{const p=location.hash.slice(1);if(p&&p!==S.page){S.page=p;render()}});
+function rr(){/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName)?dirty=true:render()}
+addEventListener("focusout",()=>{if(dirty){dirty=false;setTimeout(render,50)}});
+const mandala='<svg viewBox="0 0 200 200" fill="none" stroke="#7a4a2a" stroke-width="1.5"><circle cx="100" cy="100" r="95"/><circle cx="100" cy="100" r="70"/><circle cx="100" cy="100" r="40"/>'+Array.from({length:12},(_,i)=>`<ellipse cx="100" cy="42" rx="12" ry="30" transform="rotate(${i*30} 100 100)"/>`).join("")+"</svg>";
+function render(){
+ document.documentElement.lang=S.lang;
+ const pages=["home","classes","services","gallery","reviews","rules","shop","contact","account"].concat(isAdm()?["admin"]:[]);
+ $("#nav").innerHTML=pages.map(p=>`<a class="${S.page===p?"on":""}" onclick="go('${p}')">${t(p)}</a>`).join("");
+ $("#lang").innerHTML=LANGS.map(l=>`<button class="${S.lang===l?"on":""}" onclick="S.lang='${l}';try{localStorage.setItem('l','${l}')}catch(e){};render()">${LN[l]}</button>`).join("");
+ $("#app").innerHTML=((S.page==="admin"&&!isAdm()?null:P[S.page])||P.home)();if(S.page==="services")initMap();
+ const c=S.cfg,lk=(u,n)=>u?`<a href="${h(u)}" target="_blank" rel="noopener">${n}</a>`:"";
+ $("#foot").innerHTML=`<div class="div">❁ ✿ ❁</div><div>${t("follow")}: ${lk(c.fb,"Facebook")}${lk(c.ig,"Instagram")}${lk(c.tt,"TikTok")}${lk(c.yt,"YouTube")}</div><div class="note">© Ruth’s Makeup · Rupar Htun</div>`;
+}
+const needLogin=()=>S.ready&&!S.uid?`<p class="card note">${t("login")} <a href="#account" onclick="go('account')" style="color:var(--rose)">${t("account")}</a></p>`:"";
+const sec=(ti,body)=>`<h2>${ti}</h2><div class="div">❁ ✿ ❁</div>${body}`;
+const mins=x=>{const[a,b]=x.split(":");return +a*60+ +b};
+const busy=d=>[...S.slots].filter(k=>k.startsWith(d+"_")).map(k=>k.slice(11));
+const clash=(d,tm)=>busy(d).some(x=>Math.abs(mins(x)-mins(tm))<(S.cfg.dur||180));
+const admList=()=>(S.cfg.adm||"").toLowerCase().split(",").map(x=>x.trim()).filter(Boolean);
+const isAdm=()=>S.canEdit;
+const tsel=(p,h0,m0,on)=>`<div class="tsel"><select id="${p}h" ${on?`onchange="${on}"`:""}>${Array.from({length:24},(_,i)=>{const x=String(i).padStart(2,"0");return `<option ${x===h0?"selected":""}>${x}</option>`}).join("")}</select><select id="${p}m" ${on?`onchange="${on}"`:""}>${Array.from({length:12},(_,i)=>{const x=String(i*5).padStart(2,"0");return `<option ${x===m0?"selected":""}>${x}</option>`}).join("")}</select></div>`;
+const dist=ll=>{const r=x=>x*Math.PI/180,[a,b]=ll,dA=r(a-13.765),dB=r(b-100.5381),x=Math.sin(dA/2)**2+Math.cos(r(13.765))*Math.cos(r(a))*Math.sin(dB/2)**2;return 12742*Math.asin(Math.sqrt(x))};
+const zoneOf=ll=>{const[a,b]=ll;if(a<5.5||a>20.6||b<97.3||b>105.7)return"out";const k=dist(ll);return k<=15?"z1":k<=50?"z2":k<=200?"z3":k<=500?"z4":"z5"};
+function initMap(){const el=document.getElementById("map");if(!el||!window.L)return;const s=S.sel,m=window.L.map(el,{maxBounds:[[5.5,97.3],[20.6,105.7]],minZoom:5}).setView(s.ll||[13.765,100.5381],s.zm||(s.ll?11:9));
+ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:"© OpenStreetMap"}).addTo(m);
+ L.circleMarker([13.765,100.5381],{radius:6,color:"#c9a24b"}).addTo(m).bindTooltip("Ruth’s Makeup");
+ if(s.ll)window.L.circleMarker(s.ll,{radius:9,color:"#b76e79",fillOpacity:.8}).addTo(m);
+ m.on("click",e=>{S.sel.ll=[e.latlng.lat,e.latlng.lng];S.sel.zm=m.getZoom();render()})}
+const P={
+home(){const c=S.cfg;return `<section class="hero">${mandala}<div style="font-size:2.5rem">🪷</div><h1>Ruth’s Makeup</h1><p>Rupar Htun · ${t("tag")}</p><button class="btn" onclick="go('services')">${t("services")}</button><button class="btn" onclick="go('classes')">${t("classes")}</button></section>
+ <div class="div">❁ ✿ ❁</div><div class="grid"><div class="card"><h3>Rupar Htun</h3><p class="pre">${h(txt(c.about))}</p></div>
+ <div class="card"><h3>★ ${t("indian")} · ${t("arabic")}</h3><p class="note">${t("spec")}</p><p>💍 ${t("bridal")}<br>🎓 ${t("grad")}<br>📸 ${t("shoot")}<br>🎨 ${t("classes")}</p><p class="note">📍 ${h(c.addr)}</p></div></div>`},
+classes(){const c=S.cfg,sn=Math.floor(S.seats/6)+1,f=S.seats%6;
+ const card=(k,ex)=>`<div class="card"><h3>${t(k)}</h3><div class="price">${money(c.pr[k])}</div><div class="note">${t("pp")}</div>${ex||""}<p>${c.open[k]?"":`<b>${t("closed")}</b>`}</p></div>`;
+ const grp=`<div class="note">${t("section")} ${sn}: ${f}/6 ${t("seats")}</div><div class="bar"><i style="width:${f/6*100}%"></i></div>`;
+ return sec(t("classes"),`<div class="grid">${card("private","<p class='note'>1-5</p>")}${card("group",grp)}${card("online")}</div>
+ <div class="card"><h3>${t("send")}</h3>${needLogin()}<select id="ck">${["private","group","online"].filter(k=>c.open[k]).map(k=>`<option value="${k}">${t(k)}</option>`).join("")}</select>
+ <input id="cn" placeholder="${t("people")}" type="number" min="1" max="5" value="1"><input id="cna" placeholder="${t("name")}"><input id="cph" placeholder="${t("phone")}"><input id="cd" type="date"><label>${t("time")} (24h)</label>${tsel("ck","10","00","")}
+ <button class="btn" onclick="sendReg()">${t("send")}</button><p class="ok">${S.msg}</p></div>`)},
+services(){const c=S.cfg,s=S.sel;s.svc??="bridal";s.sty??="indian";s.h??="10";s.mi??="00";s.mode??="studio";
+ const z=s.mode==="studio"?"z0":(s.ll?zoneOf(s.ll):null);s.z=z;const okz=z&&z!=="out";
+ const tm=s.h+":"+s.mi,tot=(c.svc[s.svc]||0)+(okz?c.zone[z]||0:0),bz=s.d?busy(s.d):[],cl=s.d&&clash(s.d,tm);
+ const opt=(o,sel)=>o.map(k=>`<option value="${k}" ${sel===k?"selected":""}>${t(k)}</option>`).join("");
+ const sty=["indian","arabic","bridalc","glam","soft","korean","editorial","other"].map(k=>`<option value="${k}" ${s.sty===k?"selected":""}>${k==="indian"||k==="arabic"?"★ ":""}${t(k)}</option>`).join("");
+ return sec(t("services"),`<div class="card">${needLogin()}
+ <label>${t("svc")}</label><select onchange="S.sel.svc=this.value;render()">${opt(Object.keys(c.svc),s.svc)}</select>
+ <label>${t("style")}</label><select onchange="S.sel.sty=this.value">${sty}</select>
+ <label>${t("country")}</label><select><option>Thailand</option><option disabled>${t("soonc")}</option></select>
+ <label>${t("loc")}</label><select onchange="S.sel.mode=this.value;render()"><option value="studio" ${s.mode==="studio"?"selected":""}>${t("z0")}</option><option value="travel" ${s.mode==="travel"?"selected":""}>${t("trav")}</option></select>
+ ${s.mode==="travel"?`<p class="note">${t("pin")}</p><div id="map"></div>${z==="out"?`<p class="note"><b>${t("thonly")}</b></p>`:okz?`<p class="note">${t(z)} · ${dist(s.ll).toFixed(0)} km</p>`:""}`:""}
+ <p class="price">${t("total")}: ${money(tot)}</p>
+ <label>${t("date")}</label><input type="date" value="${s.d||""}" min="${new Date().toISOString().slice(0,10)}" onchange="S.sel.d=this.value;render()">
+ <label>${t("time")} (24h)</label>${tsel("bk",s.h,s.mi,"S.sel.h=document.getElementById('bkh').value;S.sel.mi=document.getElementById('bkm').value;render()")}
+ ${bz.length?`<p class="note">${t("busy")}: ${bz.join(", ")}</p>`:""}${cl?`<p class="note"><b>${t("conflict")}</b></p>`:""}
+ <input placeholder="${t("name")}" id="bn" value="${h(s.bn||"")}" oninput="S.sel.bn=this.value"><input placeholder="${t("phone")}" id="bp" value="${h(s.bp||"")}" oninput="S.sel.bp=this.value">
+ <textarea id="bnt" rows="2" placeholder="${t("notes")}" oninput="S.sel.nt=this.value">${h(s.nt||"")}</textarea>
+ <button class="btn" ${s.d&&!cl&&okz?"":"disabled"} onclick="sendBk(${tot})">${t("send")}</button><p class="ok">${S.msg}</p></div>`)},
+account(){if(S.uid)return sec(t("account"),`<div class="card"><p>✉️ ${h(S.email)}</p><button class="btn s" onclick="logout()">${t("logout")}</button></div><h3>${t("mybk")}</h3>${(S.mine||[]).map(b=>`<div class="card" style="margin:.4rem 0">${b.date||""} ${b.time||""} · ${h(b.svc||"")} · <b>${S.dec[b.id]||"pending"}</b></div>`).join("")||"—"}`);
+ return sec(t("account"),`<div class="grid"><div class="card"><h3>${t("loginb")}</h3><input id="le" type="email" placeholder="${t("email")}"><input id="lp" type="password" placeholder="${t("password")}"><button class="btn" onclick="doLogin()">${t("loginb")}</button></div>
+ <div class="card"><h3>${t("register")}</h3><input id="rn2" placeholder="${t("name")}"><input id="re" type="email" placeholder="${t("email")}"><input id="rp" type="password" placeholder="${t("password")} (min 6)"><button class="btn" onclick="doReg()">${t("register")}</button></div></div><p class="ok">${S.msg}</p>`)},
+gallery(){const g=S.cfg.gal||[];return sec(t("gallery"),g.length?`<div class="gal">${g.map(x=>`<figure>${x.img?`<img src="${h(x.img)}" alt="">`:'<div class="ph"></div>'}<figcaption>${h(x.t)}</figcaption></figure>`).join("")}</div>`:`<div class="gal">${[1,2,3,4,5,6].map(()=>'<figure><div class="ph"></div><figcaption>…</figcaption></figure>').join("")}</div><p class="note">Admin can add photos and captions.</p>`)},
+reviews(){const st=n=>"★".repeat(n)+"☆".repeat(5-n);
+ return sec(t("reviews"),`<div class="grid">${S.revs.map(r=>`<div class="card"><div class="stars">${st(r.stars)}</div><b>${h(r.name)}</b><p class="pre">${h(r.text)}</p>${r.img?`<img src="${h(r.img)}" style="max-width:100%;border-radius:12px" alt="">`:""}</div>`).join("")||'<p class="note">—</p>'}</div>
+ <div class="card">${needLogin()}<label>${t("rate")}</label><div class="stars">${[1,2,3,4,5].map(n=>`<span onclick="S.stars=${n};render()">${n<=S.stars?"★":"☆"}</span>`).join("")}</div>
+ <input id="rn" placeholder="${t("name")}"><textarea id="rt" rows="5" placeholder="${t("write")}"></textarea><label>${t("photo")}</label><input type="file" id="rf" accept="image/*">
+ <button class="btn" onclick="sendRev()">${t("send")}</button><p class="ok">${S.msg}</p></div>`)},
+rules(){return sec(t("rules"),`<div class="card pre">${h(txt(S.cfg.rules))}</div>`)},
+shop(){return sec(t("shop"),`<div class="card" style="text-align:center"><div style="font-size:3rem">💄🪷</div><h3>${t("soon")}</h3></div>`)},
+contact(){const c=S.cfg;return sec(t("contact"),`<div class="card"><p>📞 <a href="tel:${h(c.phone)}">${h(c.phone)}</a></p><p>✉️ <a href="mailto:${h(c.email)}">${h(c.email)}</a></p>${c.line?`<p>LINE: ${h(c.line)}</p>`:""}<p>📍 ${h(c.addr)}</p><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/${encodeURIComponent(c.addr)}">${t("map")}</a></div>`)},
+admin(){const c=S.cfg,i=(l,p,v)=>`<label>${l}</label><input data-p="${p}" value="${h(v)}">`;
+ const rows=(o,p)=>Object.keys(o).map(k=>i(T[k]?t(k):k,p+"."+k,o[k])).join("");
+ const row=(x,btns)=>`<div class="card" style="margin:.4rem 0">${x}<br>${btns}</div>`;
+ return sec(t("admin"),`<div class="card"><h3>Site</h3>${["phone","email","addr","line","fb","ig","tt","yt"].map(k=>i(k,k,c[k])).join("")}<h3>Prices ฿</h3>${rows(c.pr,"pr")}${rows(c.svc,"svc")}<h3>Location fee ฿</h3>${rows(c.zone,"zone")}
+ <h3>Open / close (1/0)</h3>${rows(c.open,"open")}${i("Minimum minutes between bookings","dur",c.dur)}
+ <label>About (${S.lang})</label><textarea data-p="about" rows="5">${h(txt(c.about))}</textarea><label>Rules (${S.lang})</label><textarea data-p="rules" rows="7">${h(txt(c.rules))}</textarea>
+ <button class="btn" onclick="saveCfg()">Save</button><span class="ok">${S.msg}</span></div>
+ <div class="card"><h3>Gallery</h3>${(c.gal||[]).map((g,n)=>`<div>${h(g.t)} <button class="btn s" onclick="delG(${n})">✕</button></div>`).join("")}<input id="gc" placeholder="Caption"><input type="file" id="gf" accept="image/*"><button class="btn s" onclick="addG()">+ Add photo</button></div>
+ <h3>Bookings</h3>${S.bk.map(b=>({...b,status:S.dec[b.id]||"pending"})).map(b=>row(`${h(b.name)} · ${h(b.phone)} · ${b.date} ${b.time} · ${b.svc}/${b.style}/${b.zone} · ${h(b.notes||"")}${b.ll?` <a target="_blank" rel="noopener" href="https://www.google.com/maps?q=${b.ll[0]},${b.ll[1]}">📍</a>`:""} · ${money(b.total)} · <b>${b.status}</b>`,`<button class="btn s" onclick="decide('${b.id}',1)">Confirm</button><button class="btn s" onclick="decide('${b.id}',0)">Reject</button>`)).join("")||"—"}
+ <h3>Class requests</h3>${S.rg.map(b=>({...b,status:S.dec[b.id]||"pending"})).map(b=>row(`${h(b.name)} · ${h(b.phone)} · ${b.kind} ×${b.n} · ${b.date||""} ${b.time||""} · <b>${b.status}</b>`,`<button class="btn s" onclick="decReg('${b.id}',${b.kind==="group"?1:0},${b.n},'${b.owner}')">Confirm</button><button class="btn s" onclick="decReg('${b.id}',0,0,'${b.owner}',0)">Reject</button>`)).join("")||"—"}
+ <h3>Reviews to approve</h3>${S.pend.filter(x=>!S.dec[x.id]).map(r=>row(`${"★".repeat(r.stars)} ${h(r.name)}: ${h(r.text).slice(0,200)}`,`<button class="btn s" onclick="appr('${r.id}')">Approve</button><button class="btn s" onclick="guard(()=>setDec('${r.id}','deleted'))">Delete</button>`)).join("")||"—"}`)}};
+const uid=()=>Date.now()+"_"+Math.random().toString(36).slice(2,6);
+async function push(col,item){const r=db.doc(col+"/"+S.uid),sn=await r.get(),items=sn.exists?sn.data().items||[]:[];items.push({...item,id:uid(),at:Date.now()});await r.set({items})}
+const setDec=(id,st)=>db.doc("dec/"+id).set({s:st});
+const flat=q=>q.docs.flatMap(d=>(d.data().items||[]).map(i=>({...i,owner:d.id,status:S.dec[i.id]||"pending"})));
+const v=id=>document.getElementById(id)?.value.trim()||"";
+async function guard(f){if(!S.uid){S.msg=t("login");S.page="account";render();return}try{await f();}catch(e){S.msg="Error: "+(e.message||e.code);render()}}
+const ok=m=>{S.msg=m;render()};
+const sendBk=tot=>guard(async()=>{const s=S.sel,tm=(s.h||"10")+":"+(s.mi||"00");if(!v("bn")||!v("bp"))return ok("⚠ "+t("name")+" / "+t("phone"));if(clash(s.d,tm))return ok(t("conflict"));
+ await push("bookings",{name:v("bn"),phone:v("bp"),svc:s.svc,style:s.sty,zone:s.z,ll:s.ll||null,date:s.d,time:tm,notes:v("bnt"),total:tot,status:"pending"});ok(t("sent"))});
+const sendReg=()=>guard(async()=>{if(!v("cna")||!v("cph"))return ok("⚠ "+t("name")+" / "+t("phone"));const k=v("ck");
+ await push("regs",{name:v("cna"),phone:v("cph"),kind:k,n:k==="private"?Math.min(5,Math.max(1,+v("cn")||1)):1,date:v("cd"),time:v("ckh")+":"+v("ckm"),status:"pending"});ok(t("sent"))});
+const sendRev=()=>guard(async()=>{const x=v("rt");if(!x)return;if(x.split(/\s+/).length>1000)return ok("⚠ max 1000 words");let img="";const f=document.getElementById("rf").files[0];
+ if(f){try{img=await upl(f)}catch(e){}}
+ await push("pend",{name:v("rn")||"Guest",text:x,stars:S.stars,img});ok(t("revsent"))});
+function readCfg(){const c=JSON.parse(JSON.stringify(S.cfg));document.querySelectorAll("[data-p]").forEach(e=>{const p=e.dataset.p.split("."),val=e.value;
+ if(p[0]==="dur")c.dur=+val||180;else if(p.length===2)c[p[0]][p[1]]=isNaN(val)||val===""?val:+val;else if(p[0]==="about"||p[0]==="rules")c[p[0]]={...c[p[0]],[S.lang]:val};else c[p[0]]=val});return c}
+const saveCfg=()=>guard(async()=>{S.cfg=readCfg();await db.doc("site/config").set(S.cfg);ok("Saved ✓")});
+const addG=()=>guard(async()=>{const f=document.getElementById("gf").files[0];let img="";if(f)img=await upl(f);
+ const c=readCfg();c.gal=[...(c.gal||[]),{img,t:v("gc")}];S.cfg=c;await db.doc("site/config").set(c);render()});
+const delG=n=>guard(async()=>{const c=readCfg();c.gal.splice(n,1);S.cfg=c;await db.doc("site/config").set(c);render()});
+const decide=(id,yes)=>guard(async()=>{const b=S.bk.find(x=>x.id===id);if(yes){await db.doc("slots/"+b.date+"_"+b.time).set({by:id});}
+ await setDec(id,yes?"confirmed":"rejected")});
+const decReg=(id,g,n,o,yes=1)=>guard(async()=>{if(g&&yes)await db.doc("site/seats").set({n:S.seats+n});await setDec(id,yes?"confirmed":"rejected")});
+const appr=id=>guard(async()=>{const r=S.pend.find(x=>x.id===id);await db.doc("reviews/"+id).set({name:r.name,text:r.text,stars:r.stars,img:r.img||""});await setDec(id,"approved")});
+const merge=(a,b)=>{const o={...a};for(const k in b)o[k]=b[k]&&typeof b[k]==="object"&&!Array.isArray(b[k])&&!(b[k] instanceof Set)?merge(a[k]||{},b[k]):b[k];return o};
+const list=q=>q.docs.map(d=>({id:d.id,...d.data()}));
+let SB,subs=[];
+const sub=(fn,er)=>{const f=()=>Promise.resolve(fn()).catch(er||(()=>{}));subs.push(f);f()};
+const upl=async f=>{const p=S.uid+"/"+uid()+"_"+f.name.replace(/[^\w.]/g,"_"),{error}=await SB.storage.from("photos").upload(p,f);if(error)throw error;return SB.storage.from("photos").getPublicUrl(p).data.publicUrl};
+function mkdb(){return{
+ doc:p=>({path:p,id:p.split("/").pop(),
+  async get(){const{data}=await SB.from("kv").select("data").eq("path",p).maybeSingle();return{exists:!!data,id:p.split("/").pop(),data:()=>data?.data}},
+  async set(d){const{error}=await SB.from("kv").upsert({path:p,data:d,updated_at:new Date().toISOString()});if(error)throw error;setTimeout(()=>subs.forEach(f=>f()),300)},
+  onSnapshot(cb,er){sub(async()=>cb(await this.get()),er)}}),
+ collection:c=>({onSnapshot(cb,er){sub(async()=>{const{data,error}=await SB.from("kv").select("path,data").like("path",c+"/%");if(error)throw error;cb({docs:data.map(r=>({id:r.path.slice(c.length+1),data:()=>r.data}))})},er)}})}}
+async function load(){subs=[];S.canEdit=false;S.mine=[];
+ if(S.uid){const{data}=await SB.from("admins").select("email");S.canEdit=!!data?.length}
+ const er=()=>{};
+ db.doc("site/config").onSnapshot(s=>{if(s.exists)S.cfg=merge(DEF,s.data());rr()},er);
+ db.doc("site/seats").onSnapshot(s=>{S.seats=s.exists?+s.data().n||0:0;rr()},er);
+ db.collection("slots").onSnapshot(q=>{S.slots=new Set(q.docs.map(d=>d.id));rr()},er);
+ db.collection("reviews").onSnapshot(q=>{S.revs=list(q);rr()},er);
+ db.collection("dec").onSnapshot(q=>{S.dec={};q.docs.forEach(d=>S.dec[d.id]=d.data().s);rr()},er);
+ if(S.uid)db.doc("bookings/"+S.uid).onSnapshot(x=>{S.mine=x.exists?x.data().items||[]:[];rr()},er);
+ if(S.canEdit){db.collection("bookings").onSnapshot(q=>{S.bk=flat(q).sort((a,b)=>b.at-a.at);rr()},er);
+  db.collection("regs").onSnapshot(q=>{S.rg=flat(q);rr()},er);db.collection("pend").onSnapshot(q=>{S.pend=flat(q);rr()},er)}
+ render()}
+async function doLogin(){const{error}=await SB.auth.signInWithPassword({email:v("le"),password:v("lp")});S.msg=error?error.message:"";error?render():go("services")}
+async function doReg(){const{error}=await SB.auth.signUp({email:v("re"),password:v("rp"),options:{data:{name:v("rn2")}}});S.msg=error?error.message:t("regok");render()}
+async function logout(){await SB.auth.signOut();go("home")}
+(()=>{const p=location.hash.slice(1);if(p)S.page=p;S.ready=true;render();
+ if(!window.supabase||SUPABASE_URL.startsWith("PASTE")){S.msg="Setup needed: see SETUP-GUIDE.md";return}
+ SB=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);db=mkdb();
+ SB.auth.onAuthStateChange((ev,sess)=>{const u=sess?.user;if((u?.id||null)!==(S.uid||null)||ev==="INITIAL_SESSION"){S.uid=u?.id||null;S.email=u?.email||"";load()}});
+ setInterval(()=>subs.forEach(f=>f()),20000)})();
+</script></body></html>
